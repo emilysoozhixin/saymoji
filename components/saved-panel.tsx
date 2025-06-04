@@ -12,7 +12,7 @@ type SavedPanelProps = {
 }
 
 export function SavedPanel({ onClose }: SavedPanelProps) {
-  const { saved, toggleSaved } = useEmojiStore()
+  const { saved, toggleSaved, loadTranslation } = useEmojiStore()
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5
@@ -24,6 +24,11 @@ export function SavedPanel({ onClose }: SavedPanelProps) {
       onClose()
     }
   }
+
+  const handleItemClick = (item: { input: string; output: string }) => {
+    loadTranslation(item.input, item.output);
+    onClose(); // Close the saved panel after loading
+  };
 
   const filteredSaved = searchQuery
     ? saved.filter(
@@ -95,7 +100,7 @@ export function SavedPanel({ onClose }: SavedPanelProps) {
               </div>
               <div className="divide-y divide-gray-200 dark:divide-gray-800">
                 {currentItems.map((item, index) => (
-                  <div key={index} className="p-4">
+                  <div key={index} className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150" onClick={() => handleItemClick(item)}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 text-sm px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                         <span>English</span>
@@ -104,7 +109,10 @@ export function SavedPanel({ onClose }: SavedPanelProps) {
                       </div>
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => toggleSaved(item.input, item.output)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSaved(item.input, item.output);
+                          }}
                           className="text-yellow-500 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
                           aria-label="Remove from saved"
                         >

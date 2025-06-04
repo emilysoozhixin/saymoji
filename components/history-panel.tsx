@@ -12,7 +12,7 @@ type HistoryPanelProps = {
 }
 
 export function HistoryPanel({ onClose }: HistoryPanelProps) {
-  const { history, toggleSaved, clearHistory } = useEmojiStore()
+  const { history, toggleSaved, clearHistory, loadTranslation } = useEmojiStore()
   const panelRef = useRef<HTMLDivElement>(null)
 
   const handleOverlayClick = (e: React.MouseEvent) => {
@@ -21,6 +21,11 @@ export function HistoryPanel({ onClose }: HistoryPanelProps) {
       onClose()
     }
   }
+
+  const handleItemClick = (item: { input: string; output: string }) => {
+    loadTranslation(item.input, item.output);
+    onClose(); // Close the history panel after loading
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/20 dark:bg-black/50 flex justify-end" onClick={handleOverlayClick}>
@@ -55,7 +60,7 @@ export function HistoryPanel({ onClose }: HistoryPanelProps) {
           ) : (
             <div className="divide-y divide-gray-200 dark:divide-gray-800">
               {history.map((item, index) => (
-                <div key={index} className="p-4">
+                <div key={index} className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150" onClick={() => handleItemClick(item)}>
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <span>English</span>

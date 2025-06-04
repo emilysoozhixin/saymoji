@@ -7,31 +7,38 @@ import { Mic, X } from "lucide-react"
 import { useEmojiStore } from "@/lib/store"
 
 export function InputPanel() {
-  const [text, setText] = useState("")
-  const { setInputText, addHistoryItem } = useEmojiStore()
+  const { inputText, setInputText, addHistoryItem, setCurrentEmojiOutput } = useEmojiStore()
+  const [text, setText] = useState(inputText)
   const [charCount, setCharCount] = useState(0)
   const maxChars = 5000
 
   useEffect(() => {
+    setText(inputText)
+  }, [inputText])
+
+  useEffect(() => {
     setCharCount(text.length)
-    setInputText(text)
-  }, [text, setInputText])
+  }, [text])
 
   const handleClear = () => {
     setText("")
+    setInputText("")
+    setCurrentEmojiOutput("")
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
+      setInputText(text)
 
-      // Get current emoji output from the store
+      // Get current emoji output from the store (async)
       const { getEmojiOutput } = useEmojiStore.getState()
-      const emojiOutput = getEmojiOutput()
+      const emojiOutput = await getEmojiOutput()
 
       // Only add to history if there's text and emoji output
       if (text && emojiOutput) {
         addHistoryItem(text, emojiOutput)
+        setCurrentEmojiOutput(emojiOutput)
       }
     }
   }
@@ -43,7 +50,7 @@ export function InputPanel() {
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Enter text"
-        className="flex-1 p-4 resize-none outline-none bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 h-[180px]"
+        className="flex-1 p-4 resize-none outline-none bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 h-[180px] border-none focus:ring-0 focus:outline-none"
         maxLength={maxChars}
       />
 
